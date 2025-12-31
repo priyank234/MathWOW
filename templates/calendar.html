@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container my-4">
+
+    <!-- Classroom selector -->
+    {% if is_teacher %}
+    <form method="get" id="classSelectorForm" class="mb-3">
+        <label for="classSelect">Class:</label>
+        <select name="classroom_id" id="classSelect" onchange="this.form.submit()">
+            {% for c in classrooms %}
+                <option value="{{ c.id }}" {% if c.id == current_classroom.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+
+    <!-- Header: Month and arrows -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('calendar', year=prev_year, month=prev_month, classroom_id=current_classroom.id) }}" class="btn btn-outline-light">
+            ← Previous
+        </a>
+
+        <h1 class="text-center text-info">{{ current_classroom.name }} - {{ month_name }} {{ year }}</h1>
+
+        <a href="{{ url_for('calendar', year=next_year, month=next_month, classroom_id=current_classroom.id) }}" class="btn btn-outline-light">
+            Next →
+        </a>
+    </div>
+
+    <!-- Weekday headers -->
+    <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap:1px;">
+        {% for day_name in ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] %}
+            <div class="text-center fw-bold bg-primary text-white py-2">{{ day_name }}</div>
+        {% endfor %}
+
+        <!-- Empty boxes before first day -->
+        {% for _ in range(start_day_offset) %}
+            <div class="bg-dark border border-secondary"></div>
+        {% endfor %}
+
+        <!-- Days -->
+        {% for day in range(1, total_days + 1) %}
+        <div class="bg-dark border border-secondary p-2">
+            <h5 class="mb-2 text-info">{{ "{:02d}/{:02d}/{:04d}".format(day, month, year) }}</h5>
+
+            {% if day in events %}
+                {% for e in events[day] %}
+                <div class="rounded bg-secondary p-2 mt-2">
+                    <div class="fw-bold text-white">{{ e.time }}</div>
+                    <div class="text-white">{{ e.title }}</div>
+
+                    {% if is_teacher %}
+                    <form method="POST" action="{{ url_for('delete_event', event_id=e.id, year=year, month=month) }}" class="mt-1">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <small class="text-muted">No events</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Teacher: Add event form -->
+    {% if is_teacher %}
+    <div class="mt-4">
+        <h3 class="text-warning">Add Event</h3>
+        <form method="POST" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Day</label>
+                <input type="number" name="day" class="form-control" min="1" max="{{ total_days }}" required>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Event Title</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Time</label>
+                <input type="text" name="time" class="form-control" placeholder="e.g. 9:30AM" required>
+            </div>
+
+            <div class="col-md-2 align-self-end">
+                <button type="submit" class="btn btn-success w-100">Add</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Sign Up</h2>
+
+<form method="POST">
+    <div class="mb-3">
+        <label>Name</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Role</label>
+        <select name="role" class="form-control" required>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+        </select>
+    </div>
+
+    <!-- Teacher Verification -->
+    <div class="mb-3" id="teacher_verif_div">
+        <label>Teacher Verification Password(which is just "teacher")</label>
+        <input type="password" name="teacher_verif" class="form-control">
+    </div>
+
+    <!-- Teacher Class Creation -->
+    <div class="mb-3" id="teacher_class_div">
+        <label>Create Class Name (Seperate multiple classes with ",")</label>
+        <input type="text" name="class_name" class="form-control">
+    </div>
+
+    <!-- Student selects classroom -->
+    <div class="mb-3" id="student_class_div">
+        <label>Select Classroom</label>
+        <select name="classroom_id" class="form-control">
+            {% for classroom in classrooms %}
+            <option value="{{ classroom.id }}">{{ classroom.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Email / Student ID</label>
+        <input type="text" name="email_or_id" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+
+    <button class="btn btn-primary">Sign Up</button>
+</form>
+
+<script>
+const roleSelect = document.querySelector('select[name="role"]');
+const teacherDiv = document.getElementById('teacher_verif_div');
+const teacherClassDiv = document.getElementById('teacher_class_div');
+const studentClassDiv = document.getElementById('student_class_div');
+
+function updateRoleDisplay() {
+    if(roleSelect.value === 'teacher') {
+        teacherDiv.style.display = 'block';
+        teacherClassDiv.style.display = 'block';
+        studentClassDiv.style.display = 'none';
+    } else {
+        teacherDiv.style.display = 'none';
+        teacherClassDiv.style.display = 'none';
+        studentClassDiv.style.display = 'block';
+    }
+}
+
+// Initialize on page load
+updateRoleDisplay();
+roleSelect.addEventListener('change', updateRoleDisplay);
+</script>
+{% endblock %}

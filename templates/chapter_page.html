@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary mb-3">Back to Dashboard</a>
+<h2>{{ chapter.title }}</h2>
+
+{% for part in chapter.parts %}
+<div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        {{ part.title }}
+    </div>
+
+    <div class="card-body">
+
+        <!-- TEACHING PART -->
+        {% if part.questions|length == 0 %}
+
+            {% if part.lesson_video %}
+            <h5>Lesson Video</h5>
+            <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/{{ part.lesson_video }}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+
+            {% endif %}
+
+            <h5 class="mt-3" style="color: black;">Lesson Notes</h5>
+            {% for note in part.lesson_notes %}
+                <a href="{{ url_for('static', filename=note.pdf_url) }}"
+                   target="_blank" class="btn btn-outline-primary mb-2">
+                   View Notes (PDF)
+                </a>
+            {% endfor %}
+
+            {% if not part.completed %}
+                <form action="{{ url_for('mark_part_complete', part_id=part.id) }}" method="POST">
+                    <button type="submit" class="btn btn-success"
+                        {% if part.id in completed_part_ids %} disabled {% endif %}>
+                        {% if part.id in completed_part_ids %} Completed {% else %} Mark Complete {% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <span class="badge bg-success mt-3">Completed</span>
+            {% endif %}
+
+        <!-- EXERCISE PART -->
+        {% else %}
+
+            {% if not part.submitted %}
+                <form method="POST" action="{{ url_for('submit_part', part_id=part.id) }}">
+                    {% for q in part.questions %}
+                        <div class="mb-4" style="color: black;">
+                            <p><strong>{{ loop.index }}. {{ q.question_text }}</strong></p>
+
+                            {% for opt in ['A','B','C','D'] %}
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                    type="radio"
+                                    name="q_{{ q.id }}"
+                                    value="{{ opt }}"
+                                    required>
+                                <label class="form-check-label">
+                                    {% if opt == 'A' %}{{ q.option_a }}{% endif %}
+                                    {% if opt == 'B' %}{{ q.option_b }}{% endif %}
+                                    {% if opt == 'C' %}{{ q.option_c }}{% endif %}
+                                    {% if opt == 'D' %}{{ q.option_d }}{% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary">Submit</button>
+                </form>
+            {% else %}
+                <div class="alert alert-success">
+                    Score: {{ part.correct }} / {{ part.total }}
+                </div>
+
+                {% if part.lesson_video %}
+                <h5>Answer Video</h5>
+                <iframe
+                    width="560"
+                    height="315"
+                    src="https://www.youtube.com/embed/{{ part.lesson_video }}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+                {% endif %}
+
+                <h5 class="mt-3" style="color: black;">Lesson Notes</h5>
+                {% for note in part.lesson_notes %}
+                    <a href="{{ url_for('static', filename=note.pdf_url) }}"
+                       target="_blank" class="btn btn-outline-primary mb-2">
+                       View Notes (PDF)
+                    </a>
+                {% endfor %}
+            {% endif %}
+
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

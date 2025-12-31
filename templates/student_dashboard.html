@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Student Dashboard</h2>
+
+{% if classroom %}
+    <h3>Classroom: {{ classroom.name }}</h3>
+
+    {% if student_course_data %}
+        {% for data in student_course_data %}
+        <div class="card mb-3">
+            <div class="card-header fw-bold text-black" >
+                {{ data.course.name }}
+            </div>
+            
+            <div class="card-body">
+                {% if data.chapters %}
+                <div class="d-flex flex-wrap gap-3">
+                    {% for chapter in data.chapters %}
+                    <div class="p-3 border rounded text-center"
+                         style="width:150px;
+                                background-color: {% if chapter.completed %}#198754{% else %}#6c757d{% endif %};
+                                color: white;">
+                        <a href="{{ url_for('chapter_page', chapter_id=chapter.id) }}" 
+                           class="text-white text-decoration-none">
+                           {{ chapter.title }}
+                        </a>
+                        
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No chapters available for this course.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No courses assigned to your classroom yet.</p>
+    {% endif %}
+
+{% else %}
+    <p class="text-muted">No classroom assigned.</p>
+{% endif %}
+
+{% endblock %}

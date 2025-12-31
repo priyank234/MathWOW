@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <!-- Class selection dropdown (teacher only) -->
+    {% if teacher_classes %}
+    <form method="get" id="classSelectorForm">
+        <label for="classSelect">Class:</label>
+        <select name="classroom_id" id="classSelect" onchange="this.form.submit()">
+            {% for c in teacher_classes %}
+                <option value="{{ c.id }}" {% if current_class and c.id == current_class.id %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+
+    <h2>Class Forum</h2>
+    <hr>
+
+    <!-- Create a new post -->
+    {% if current_class %}
+    <form method="POST" action="{{ url_for('forum', classroom_id=current_class.id) }}" class="mb-4">
+        <textarea name="content" class="form-control" placeholder="Write a new post..." required></textarea>
+        <button class="btn btn-primary mt-2" type="submit">Post</button>
+    </form>
+    {% endif %}
+
+    <!-- Display posts -->
+    {% for post in posts %}
+    <div class="card mb-3">
+        <div class="card-body {% if post.author.role == 'teacher' %}bg-warning{% else %}bg-light{% endif %}">
+            <div class="d-flex justify-content-between">
+                <h5 class="card-title"><strong style="color: black;">{{ post.author.name }}</strong></h5>
+                {% if current_user.role == 'teacher' %}
+                <a href="{{ url_for('delete_post', post_id=post.id, classroom_id=current_class.id if current_class else '') }}" class="btn btn-sm btn-danger">Delete</a>
+                {% endif %}
+            </div>
+            <p style="color: black;">{{ post.content }}</p>
+        </div>
+
+        <!-- Answers -->
+        <div class="card-footer">
+            {% for ans in post.answers %}
+            <div class="p-2 mb-2 rounded {% if ans.author.role == 'teacher' %}bg-warning{% else %}bg-light{% endif %}">
+                <strong style="color: black;">{{ ans.author.name }}</strong>: 
+                <p style="color: black;">{{ ans.content }}</p>
+            </div>
+            {% endfor %}
+
+            <!-- Add Answer Form -->
+            <form method="POST" action="{{ url_for('answer_post', post_id=post.id, classroom_id=current_class.id if current_class else '') }}">
+                <input type="text" name="content" class="form-control" placeholder="Write an answer..." required>
+                <button class="btn btn-secondary btn-sm mt-2">Answer</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Teacher Dashboard</h2>
+
+<a href="{{ url_for('calendar') }}" class="btn btn-primary mb-3">Manage Calendar</a>
+
+<h3>Classrooms</h3>
+
+{% for classroom in classrooms %}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center" style="color: black;">
+        <span>
+            {{ classroom.name }} - Courses:
+            {% if classroom.courses %}
+                {% for c in classroom.courses %}
+                    <span class="badge bg-info">{{ c.name }}</span>
+                {% endfor %}
+            {% else %}
+                <span class="text-muted">No course assigned</span>
+            {% endif %}
+        </span>
+
+        <a href="{{ url_for('assign_course', classroom_id=classroom.id) }}"
+           class="btn btn-sm btn-secondary">
+           Assign Course
+        </a>
+    </div>
+
+    <div class="card-body">
+        <h5 style="color: black;">Students</h5>
+        <ul class="list-group">
+            {% for student in classroom.students %}
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="color: black;">
+                {{ student.name }}
+                <span style="width: 150px;">
+                    <div class="progress">
+                        {% set total_parts = 23 %}
+                        {% set completed_parts = student.submitted_parts|length %}
+                        {% set progress = (completed_parts / total_parts * 100) | round(0) %}
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">{{ progress }}%</div>
+                    </div>
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
