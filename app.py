@@ -1200,7 +1200,7 @@ with app.app_context():
         chapter_id=chapter3.id,
         title="Introduction to Trigonometric Substitutions",
         type="teaching",
-        lesson_video="UNMoskoJq8"
+        lesson_video="UNMoskoJq84"
     )
     db.session.add(part11)
     db.session.commit()
@@ -1214,7 +1214,7 @@ with app.app_context():
         chapter_id=chapter3.id,
         title="Domain of Trigonometric Substitutions",
         type="teaching",
-        lesson_video="4F7pv-05aI"
+        lesson_video="s4F7pv-05aI"
     )
     db.session.add(part12)
     db.session.commit()
